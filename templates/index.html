@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive visualizer for emergency-room priority queues using an unsorted array, sorted linked list, and binary min-heap.">
+  <title>ER Priority Queue Visualizer</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Emergency Room Priority Queue home">
+        <span class="brand-mark">ER</span>
+        <span><strong>Priority Queue</strong></span>
+      </a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1><span>Priority Queue Visualizer</span></h1>
+        </div>
+        <div class="hero-graphic" aria-hidden="true">
+          <div class="pulse-ring ring-one"></div><div class="pulse-ring ring-two"></div>
+          <div class="heart-card"><span>✚</span><strong>ER</strong><small>QUEUE</small></div>
+          <div class="floating-tag tag-top">Priority 1</div>
+          <div class="floating-tag tag-bottom">Next patient →</div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="control-panel panel">
+          <div class="section-heading"><span class="step-number">01</span><div><h2>Choose an approach</h2><p>Switch implementations anytime.</p></div></div>
+          <div class="approach-options" role="group" aria-label="Priority queue approach">
+            <button class="approach-option active" data-approach="unsorted" type="button">
+              <span class="option-icon">▤</span><span class="option-copy"><strong>Unsorted Array</strong><small>Scan to find the next patient</small></span><span class="option-check">✓</span>
+            </button>
+            <button class="approach-option" data-approach="linked" type="button">
+              <span class="option-icon">↔</span><span class="option-copy"><strong>Sorted Linked List</strong><small>Keep nodes in priority order</small></span><span class="option-check">✓</span>
+            </button>
+            <button class="approach-option" data-approach="heap" type="button">
+              <span class="option-icon">⌘</span><span class="option-copy"><strong>Binary Min-Heap</strong><small>Maintain a heap-shaped tree</small></span><span class="option-check">✓</span>
+            </button>
+          </div>
+
+          <div class="panel-divider"></div>
+          <div class="section-heading"><span class="step-number">02</span><div><h2>Add a patient</h2><p>Smaller number = higher priority.</p></div></div>
+          <form id="patient-form" class="patient-form">
+            <label for="patient-name">Patient name / ID</label>
+            <input id="patient-name" name="patient-name" type="text" maxlength="24" placeholder="e.g. Patient E" required>
+            <label for="patient-priority">Priority level</label>
+            <select id="patient-priority" name="patient-priority">
+              <option value="1">1 — Highest</option>
+              <option value="2" selected>2 — High</option>
+              <option value="3">3 — Medium</option>
+              <option value="4">4 — Low</option>
+              <option value="5">5 — Lowest</option>
+            </select>
+            <button class="button button-primary button-full" type="submit"><span>＋</span> Push patient</button>
+          </form>
+          <div class="quick-actions">
+            <button class="button button-secondary" id="load-sample" type="button">Load example</button>
+            <button class="button button-ghost" id="clear-all" type="button">Clear all</button>
+          </div>
+          <div class="panel-divider"></div>
+          <div class="section-heading compact"><span class="step-number">03</span><div><h2>Queue operations</h2><p>Perform an operation on the selected structure.</p></div></div>
+          <div class="operation-buttons">
+            <button class="operation-button" id="pop-button" type="button"><span class="operation-symbol">↓</span><span><strong>Pop</strong><small>Treat next patient</small></span></button>
+            <button class="operation-button" id="peek-button" type="button"><span class="operation-symbol">◎</span><span><strong>Peek</strong><small>View next patient</small></span></button>
+          </div>
+        </aside>
+
+        <section class="visualizer-column">
+          <div class="panel visual-panel">
+            <div class="visual-header">
+              <div><p class="eyebrow">LIVE VISUALIZATION</p><h2 id="visual-title">Unsorted Array</h2><p id="visual-subtitle">Patients stay in insertion order until Pop scans for the highest priority.</p></div>
+              <div class="count-badge"><strong id="patient-count">0</strong><span>patients</span></div>
+            </div>
+            <div class="legend">
+              <span><i class="legend-dot dot-normal"></i>Patient</span>
+              <span><i class="legend-dot dot-scan"></i>Being compared</span>
+              <span><i class="legend-dot dot-selected"></i>Highest priority</span>
+            </div>
+            <div id="structure-view" class="structure-view" aria-live="polite">
+              <div class="empty-state"><span class="empty-icon">＋</span><strong>Your queue is empty</strong><p>Load the example or add a patient to begin.</p></div>
+            </div>
+            <div class="structure-caption" id="structure-caption">Array positions are shown from left to right.</div>
+            <div class="operation-result" id="operation-result" role="status">Ready. Choose an operation to begin.</div>
+          </div>
+
+          <div class="panel steps-panel">
+            <div class="steps-header">
+              <div><p class="eyebrow">ALGORITHM WALKTHROUGH</p><h2>Execution steps</h2></div>
+              <div class="step-counter"><span id="current-step">0</span><span class="counter-separator">/</span><span id="total-steps">0</span></div>
+            </div>
+            <div class="step-progress"><div id="step-progress-fill"></div></div>
+            <div class="current-step-card">
+              <span class="current-step-icon" id="current-step-icon">↳</span>
+              <div><h3 id="step-title">No operation yet</h3><p id="step-description">Push a patient, load the example, or select Pop / Peek to see the algorithm in action.</p></div>
+            </div>
+            <div class="step-controls">
+              <button class="button button-secondary" id="previous-step" type="button" disabled>← Previous</button>
+              <button class="button button-primary" id="next-step" type="button" disabled>Next →</button>
+            </div>
+            <div class="table-wrap">
+              <table class="steps-table">
+                <thead><tr><th>Step</th><th>Action</th><th>Explanation</th></tr></thead>
+                <tbody id="steps-table-body"><tr class="table-empty"><td colspan="3">Your operation history will appear here.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
+  <script src="/script.js"></script>
+</body>
+</html>
